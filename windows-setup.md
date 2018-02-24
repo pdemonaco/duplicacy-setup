@@ -20,6 +20,11 @@ Note that this is the same process for attaching another machine to the same rep
 2. You'll be prompted for your Backblaze Account ID as well as your Application Key. Finally, you'll be prompted for an encryption password to actually encrypt the data. 
     
     ![Repo Init Complete](img/repo-init-result.png)
+3. Finally, you need to run at least one backup to get the encryption password stored so the system can use it for subsequent executions.
+
+    ```powershell
+    duplicacy backup -hash -threads 8 -stats -vss
+    ```
 
 
 # Scheduled Task Creation
