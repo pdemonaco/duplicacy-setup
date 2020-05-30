@@ -1,10 +1,33 @@
 # Installation
 
 1. Download the latest binary version from [github](https://github.com/gilbertchen/duplicacy/releases).
-2. Copy the binary to system32 so it's in the path.
-    
+1. Create a bin directory in your home.
+
     ```powershell
-    Copy-Item "%USERPROFILE%\Downloads\duplicacy_win_x64_2.0.10.exe" "C:\Windows\System32\duplicacy.exe"
+    New-Item -Path "${home}\bin" -Type Directory
+    ```
+1. Ensure this directory is in your path.
+
+    ```powershell
+    $new_path = "${home}\bin"
+    $current_path = [Environment]::GetEnvironmentVariable("Path",
+        [EnvironmentVariableTarget]::User)
+    $new_pattern = [regex]::Escape($new_path)
+    if ($current_path -notmatch $new_pattern) {
+        Write-Host "Adding '${new_path}' to User Path"
+        [Environment]::SetEnvironmentVariable(
+           "Path",
+            "${current_path};${new_path}",
+            [EnvironmentVariableTarget]::User)
+    }
+    ```
+1. Copy the binary to this bin directory and create a symlink for `duplicacy.exe`.
+
+    ```powershell
+    $latest = "duplicacy_win_x64_2.5.2.exe"
+    Copy-Item "${home}\Downloads\${latest}" "${home}\bin"
+    cd "${home}\bin"
+    New-Item -Type SymbolicLink -Path "duplicacy.exe" -Value ".\${latest}"
     ```
 
 # Backup Directory Configuration
@@ -15,7 +38,9 @@ Note that this is the same process for attaching another machine to the same rep
 
     ```powershell
     # duplicacy init -e <snapshot ID> b2://<bucket name>
-    duplicacy init -e home-phil-loki b2://duplicacy-primary
+    $snapshot = "home-$(whoami)-$(hostname)".Replace('\','-')
+    $bucket = "duplicacy-primary"
+    duplicacy init -e "${snapshot}" "b2://${bucket}"
     ```
 2. You'll be prompted for your Backblaze Account ID as well as your Application Key. Finally, you'll be prompted for an encryption password to actually encrypt the data. 
     
@@ -23,6 +48,7 @@ Note that this is the same process for attaching another machine to the same rep
 3. Finally, you need to run at least one backup to get the encryption password stored so the system can use it for subsequent executions.
 
     ```powershell
+    # Note that '-vss' won't work unless you ran this session as an administrator
     duplicacy backup -hash -threads 8 -stats -vss
     ```
 
