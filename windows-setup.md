@@ -40,12 +40,19 @@ Note that this is the same process for attaching another machine to the same rep
     # duplicacy init -e <snapshot ID> b2://<bucket name>
     $snapshot = "home-$(whoami)-$(hostname)".Replace('\','-')
     $bucket = "duplicacy-primary"
+    cd $HOME
     duplicacy init -e "${snapshot}" "b2://${bucket}"
     ```
-2. You'll be prompted for your Backblaze Account ID as well as your Application Key. Finally, you'll be prompted for an encryption password to actually encrypt the data. 
+1. You'll be prompted for your Backblaze Account ID as well as your Application Key. Finally, you'll be prompted for an encryption password to actually encrypt the data. 
     
     ![Repo Init Complete](img/repo-init-result.png)
-3. Finally, you need to run at least one backup to get the encryption password stored so the system can use it for subsequent executions.
+1. At this point the `.duplicacy` directory should have been created in your profile directory. Download the [filters](./filters) file and place it within that directory.
+
+
+    ```powershell
+    mv ~/downloads/filters "${HOME}/.duplicacy"
+    ```
+1. Finally, you need to run at least one backup to get the encryption password stored so the system can use it for subsequent executions.
 
     ```powershell
     # Note that '-vss' won't work unless you ran this session as an administrator
